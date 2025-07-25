@@ -640,7 +640,7 @@
             };
             
             members.push(newMember);
-            saveData();
+            saveData(); // Save immediately after adding
             updateStats();
             renderMembers();
             renderAbsenList();
@@ -658,7 +658,7 @@
                 members = members.filter(member => member.id !== memberId);
                 // Remove from attendance history as well
                 attendanceHistory = attendanceHistory.filter(record => record.memberId !== memberId);
-                saveData();
+                saveData(); // Save immediately after removing
                 updateStats();
                 renderMembers();
                 renderAbsenList();
@@ -945,36 +945,54 @@
         function saveData() {
             const data = {
                 members: members,
-                attendanceHistory: attendanceHistory
+                attendanceHistory: attendanceHistory,
+                initialized: true
             };
-            // Note: Using in-memory storage for Claude.ai compatibility
+            
+            // Use a more persistent storage approach
+            try {
+                // Create a hidden element to store data persistently in the page
+                let dataStorage = document.getElementById('persistentData');
+                if (!dataStorage) {
+                    dataStorage = document.createElement('script');
+                    dataStorage.id = 'persistentData';
+                    dataStorage.type = 'application/json';
+                    dataStorage.style.display = 'none';
+                    document.head.appendChild(dataStorage);
+                }
+                dataStorage.textContent = JSON.stringify(data);
+            } catch (e) {
+                console.log('Fallback to window storage');
+            }
+            
+            // Also keep in window as backup
             window.appData = data;
         }
 
         function loadData() {
-            // Load from in-memory storage or initialize with sample data
-            if (window.appData) {
-                members = window.appData.members || [];
-                attendanceHistory = window.appData.attendanceHistory || [];
+            let loadedData = null;
+            
+            // Try to load from persistent storage first
+            try {
+                const dataStorage = document.getElementById('persistentData');
+                if (dataStorage && dataStorage.textContent) {
+                    loadedData = JSON.parse(dataStorage.textContent);
+                }
+            } catch (e) {
+                console.log('Could not load from persistent storage, trying window storage');
+            }
+            
+            // Fallback to window storage
+            if (!loadedData && window.appData) {
+                loadedData = window.appData;
+            }
+            
+            if (loadedData && loadedData.initialized) {
+                members = loadedData.members || [];
+                attendanceHistory = loadedData.attendanceHistory || [];
             } else {
-                // Initialize with sample data
-                members = [
-                    {
-                        id: 1,
-                        name: 'Piter',
-                        class: '9B',
-                        phone: '085710657639',
-                        joinDate: new Date().toISOString()
-                    },
-                    {
-                        id: 2,
-                        name: 'syakira',
-                        class: '8d',
-                        phone: '082317683497',
-                        joinDate: new Date().toISOString()
-                    }
-                ];
-                
+                // Initialize with empty data - no sample members
+                members = [];
                 attendanceHistory = [];
                 saveData();
             }
@@ -990,35 +1008,25 @@
             }, 100);
         });
 
-        // Add some sample attendance data for demonstration
-        function addSampleData() {
-            const today = new Date();
-            const lastTuesday = new Date(today);
-            lastTuesday.setDate(today.getDate() - ((today.getDay() + 5) % 7));
-            
-            // Add sample attendance for last Tuesday
-            members.forEach((member, index) => {
-                if (index < 2) { // First 2 members attended and paid
-                    attendanceHistory.push({
-                        memberId: member.id,
-                        date: lastTuesday.toDateString(),
-                        present: true,
-                        paid: true,
-                        timestamp: new Date(lastTuesday).toISOString()
-                    });
-                }
+        // Remove sample data initialization since we want to start empty
+        // Initialize sample data on first load - REMOVED
+        // setTimeout(() => {
+        //     if (attendanceHistory.length === 0) {
+        //         addSampleData();
+        //         updateStats();
+        //     }
+        // }, 500);
+
+        // Add persistent data storage element to the page on load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure data persistence across page refreshes
+            window.addEventListener('beforeunload', function() {
+                saveData();
             });
             
-            saveData();
-        }
-
-        // Initialize sample data on first load
-        setTimeout(() => {
-            if (attendanceHistory.length === 0) {
-                addSampleData();
-                updateStats();
-            }
-        }, 500);
+            // Auto-save every 30 seconds as backup
+            setInterval(saveData, 30000);
+        });
     </script>
 </body>
     </html>
