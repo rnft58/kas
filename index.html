@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absen Uang Kas - Eskul Badminton</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-card h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .login-card .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .password-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.2em;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .password-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Main Dashboard */
+        .main-dashboard {
+            display: none;
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.2em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .member-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+
+        .member-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .member-item:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .member-info h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .member-info p {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .status-badges {
+            display: flex;
+            gap: 5px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
+        .badge-present {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-paid {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .calendar-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .calendar-day:hover {
+            background: #f0f8ff;
+            border-color: #667eea;
+        }
+
+        .calendar-day.tuesday {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .calendar-day.has-attendance {
+            background: linear-gradient(135deg, #2ed573 0%, #7bed9f 100%);
+            color: white;
+        }
+
+        .error-message {
+            color: #dc3545;
+            background: #f8d7da;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success-message {
+            color: #155724;
+            background: #d4edda;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #c3e6cb;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .login-card {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .member-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <h1>🏸</h1>
+            <h1>Eskul Badminton</h1>
+            <p class="subtitle">Sistem Absen Uang Kas Selasa</p>
+            <div id="loginError" class="error-message" style="display: none;">
+                Password salah! Masukkan password yang benar.
+            </div>
+            <input type="password" id="passwordInput" class="password-input" placeholder="Masukkan Password">
+            <button onclick="login()" class="login-btn">Masuk Dashboard</button>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="mainDashboard" class="main-dashboard">
+        <div class="container">
+            <div class="header">
+                <h1>🏸 Dashboard Eskul Badminton</h1>
+                <p>Sistem Manajemen Absen dan Uang Kas Selasa</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalMembers">0</div>
+                    <div class="stat-label">Total Anggota</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="todayPresent">0</div>
+                    <div class="stat-label">Hadir Hari Ini</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="todayPaid">0</div>
+                    <div class="stat-label">Sudah Bayar</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalIncome">Rp 0</div>
+                    <div class="stat-label">Total Kas Terkumpul</div>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('absen')">📋 Absen Hari Ini</div>
+                <div class="tab" onclick="showTab('members')">👥 Kelola Anggota</div>
+                <div class="tab" onclick="showTab('history')">📊 Riwayat</div>
+                <div class="tab" onclick="showTab('calendar')">📅 Kalender</div>
+            </div>
+
+            <!-- Tab Absen -->
+            <div id="absenTab" class="tab-content active">
+                <h2>Absen Selasa - <span id="currentDate"></span></h2>
+                <div id="absenMessage" class="success-message" style="display: none;"></div>
+                <div class="member-list" id="absenList">
+                    <!-- Member list akan dimuat di sini -->
+                </div>
+            </div>
+
+            <!-- Tab Kelola Anggota -->
+            <div id="membersTab" class="tab-content">
+                <h2>Kelola Anggota Eskul</h2>
+                
+                <div class="form-group">
+                    <label>Tambah Anggota Baru</label>
+                    <input type="text" id="newMemberName" placeholder="Nama Lengkap">
+                </div>
+                <div class="form-group">
+                    <input type="text" id="newMemberClass" placeholder="Kelas (contoh: 9B)">
+                </div>
+                <div class="form-group">
+                    <input type="tel" id="newMemberPhone" placeholder="Nomor Telepon">
+                </div>
+                <button onclick="addMember()" class="btn btn-primary">Tambah Anggota</button>
+                
+                <div id="memberMessage" class="success-message" style="display: none;"></div>
+                
+                <h3 style="margin-top: 30px;">Daftar Anggota</h3>
+                <div class="member-list" id="membersList">
+                    <!-- Daftar anggota akan dimuat di sini -->
+                </div>
+            </div>
+
+            <!-- Tab Riwayat -->
+            <div id="historyTab" class="tab-content">
+                <h2>Riwayat Absen dan Pembayaran</h2>
+                <div class="form-group">
+                    <select id="historyFilter">
+                        <option value="all">Semua Riwayat</option>
+                        <option value="thisMonth">Bulan Ini</option>
+                        <option value="lastMonth">Bulan Lalu</option>
+                    </select>
+                </div>
+                <button onclick="clearHistory()" class="btn btn-danger">Hapus Semua Riwayat</button>
+                <div id="historyList" class="member-list">
+                    <!-- Riwayat akan dimuat di sini -->
+                </div>
+            </div>
+
+            <!-- Tab Kalender -->
+            <div id="calendarTab" class="tab-content">
+                <h2>Kalender Absen Selasa</h2>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <button onclick="changeMonth(-1)" class="btn btn-primary">‹ Bulan Sebelumnya</button>
+                    <span id="currentMonth" style="margin: 0 20px; font-size: 1.2em; font-weight: bold;"></span>
+                    <button onclick="changeMonth(1)" class="btn btn-primary">Bulan Berikutnya ›</button>
+                </div>
+                <div class="calendar" id="calendar">
+                    <!-- Kalender akan dimuat di sini -->
+                </div>
+                <div style="margin-top: 20px; text-align: center;">
+                    <span class="badge badge-present">🟦 Hari Selasa</span>
+                    <span class="badge badge-paid">🟩 Ada Absen</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data Storage
+        let members = [];
+        let attendanceHistory = [];
+        let currentCalendarDate = new Date();
+        
+        // Biaya kas per minggu
+        const weeklyFee = 2000;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            updateCurrentDate();
+            updateStats();
+            renderMembers();
+            renderAbsenList();
+            renderCalendar();
+            
+            // Allow Enter key for login
+            document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    login();
+                }
+            });
+        });
+
+        function login() {
+            const password = document.getElementById('passwordInput').value;
+            const loginError = document.getElementById('loginError');
+            
+            if (password === '00') {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainDashboard').style.display = 'block';
+                loginError.style.display = 'none';
+            } else {
+                loginError.style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+            }
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.classList.add('active');
+            
+            // Update content based on tab
+            if (tabName === 'absen') {
+                renderAbsenList();
+            } else if (tabName === 'members') {
+                renderMembers();
+            } else if (tabName === 'history') {
+                renderHistory();
+            } else if (tabName === 'calendar') {
+                renderCalendar();
+            }
+        }
+
+        function updateCurrentDate() {
+            const today = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            document.getElementById('currentDate').textContent = 
+                today.toLocaleDateString('id-ID', options);
+        }
+
+        function addMember() {
+            const name = document.getElementById('newMemberName').value.trim();
+            const memberClass = document.getElementById('newMemberClass').value.trim();
+            const phone = document.getElementById('newMemberPhone').value.trim();
+            
+            if (!name || !memberClass || !phone) {
+                alert('Semua field harus diisi!');
+                return;
+            }
+            
+            const newMember = {
+                id: Date.now(),
+                name: name,
+                class: memberClass,
+                phone: phone,
+                joinDate: new Date().toISOString()
+            };
+            
+            members.push(newMember);
+            saveData();
+            updateStats();
+            renderMembers();
+            renderAbsenList();
+            
+            // Clear form
+            document.getElementById('newMemberName').value = '';
+            document.getElementById('newMemberClass').value = '';
+            document.getElementById('newMemberPhone').value = '';
+            
+            showMessage('memberMessage', 'Anggota berhasil ditambahkan!');
+        }
+
+        function removeMember(memberId) {
+            if (confirm('Yakin ingin menghapus anggota ini?')) {
+                members = members.filter(member => member.id !== memberId);
+                // Remove from attendance history as well
+                attendanceHistory = attendanceHistory.filter(record => record.memberId !== memberId);
+                saveData();
+                updateStats();
+                renderMembers();
+                renderAbsenList();
+                showMessage('memberMessage', 'Anggota berhasil dihapus!');
+            }
+        }
+
+        function toggleAttendance(memberId) {
+            const today = new Date().toDateString();
+            const existingRecord = attendanceHistory.find(
+                record => record.memberId === memberId && record.date === today
+            );
+            
+            if (existingRecord) {
+                existingRecord.present = !existingRecord.present;
+            } else {
+                attendanceHistory.push({
+                    memberId: memberId,
+                    date: today,
+                    present: true,
+                    paid: false,
+                    timestamp: new Date().toISOString()
+                });
+            }
+            
+            saveData();
+            updateStats();
+            renderAbsenList();
+            showMessage('absenMessage', 'Status kehadiran berhasil diupdate!');
+        }
+
+        function togglePayment(memberId) {
+            const today = new Date().toDateString();
+            let record = attendanceHistory.find(
+                record => record.memberId === memberId && record.date === today
+            );
+            
+            if (!record) {
+                record = {
+                    memberId: memberId,
+                    date: today,
+                    present: false,
+                    paid: true,
+                    timestamp: new Date().toISOString()
+                };
+                attendanceHistory.push(record);
+            } else {
+                record.paid = !record.paid;
+            }
+            
+            saveData();
+            updateStats();
+            renderAbsenList();
+            showMessage('absenMessage', 'Status pembayaran berhasil diupdate!');
+        }
+
+        function renderAbsenList() {
+            const container = document.getElementById('absenList');
+            const today = new Date().toDateString();
+            
+            container.innerHTML = '';
+            
+            members.forEach(member => {
+                const attendanceRecord = attendanceHistory.find(
+                    record => record.memberId === member.id && record.date === today
+                );
+                
+                const isPresent = attendanceRecord ? attendanceRecord.present : false;
+                const isPaid = attendanceRecord ? attendanceRecord.paid : false;
+                
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'member-item';
+                memberDiv.innerHTML = `
+                    <div class="member-info">
+                        <h4>${member.name}</h4>
+                        <p>Kelas: ${member.class} | Tel: ${member.phone}</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div class="status-badges">
+                            ${isPresent ? '<span class="badge badge-present">Hadir</span>' : ''}
+                            ${isPaid ? '<span class="badge badge-paid">Bayar</span>' : ''}
+                        </div>
+                        <button onclick="toggleAttendance(${member.id})" 
+                                class="btn ${isPresent ? 'btn-success' : 'btn-primary'}">
+                            ${isPresent ? '✓ Hadir' : 'Absen'}
+                        </button>
+                        <button onclick="togglePayment(${member.id})" 
+                                class="btn ${isPaid ? 'btn-success' : 'btn-primary'}">
+                            ${isPaid ? '✓ Bayar' : 'Kas'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(memberDiv);
+            });
+        }
+
+        function renderMembers() {
+            const container = document.getElementById('membersList');
+            container.innerHTML = '';
+            
+            members.forEach(member => {
+                const memberDiv = document.createElement('div');
+                memberDiv.className = 'member-item';
+                memberDiv.innerHTML = `
+                    <div class="member-info">
+                        <h4>${member.name}</h4>
+                        <p>Kelas: ${member.class} | Tel: ${member.phone}</p>
+                        <p style="font-size: 0.8em; color: #999;">
+                            Bergabung: ${new Date(member.joinDate).toLocaleDateString('id-ID')}
+                        </p>
+                    </div>
+                    <button onclick="removeMember(${member.id})" class="btn btn-danger">
+                        Hapus
+                    </button>
+                `;
+                container.appendChild(memberDiv);
+            });
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('historyList');
+            const filter = document.getElementById('historyFilter').value;
+            
+            container.innerHTML = '';
+            
+            let filteredHistory = [...attendanceHistory];
+            const now = new Date();
+            
+            if (filter === 'thisMonth') {
+                filteredHistory = attendanceHistory.filter(record => {
+                    const recordDate = new Date(record.date);
+                    return recordDate.getMonth() === now.getMonth() && 
+                           recordDate.getFullYear() === now.getFullYear();
+                });
+            } else if (filter === 'lastMonth') {
+                const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                filteredHistory = attendanceHistory.filter(record => {
+                    const recordDate = new Date(record.date);
+                    return recordDate.getMonth() === lastMonth.getMonth() && 
+                           recordDate.getFullYear() === lastMonth.getFullYear();
+                });
+            }
+            
+            // Group by date
+            const groupedHistory = {};
+            filteredHistory.forEach(record => {
+                if (!groupedHistory[record.date]) {
+                    groupedHistory[record.date] = [];
+                }
+                groupedHistory[record.date].push(record);
+            });
+            
+            Object.keys(groupedHistory).sort().reverse().forEach(date => {
+                const dateDiv = document.createElement('div');
+                dateDiv.innerHTML = `<h4 style="margin: 20px 0 10px 0; color: #667eea;">
+                    ${new Date(date).toLocaleDateString('id-ID', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'})}
+                </h4>`;
+                container.appendChild(dateDiv);
+                
+                groupedHistory[date].forEach(record => {
+                    const member = members.find(m => m.id === record.memberId);
+                    if (member) {
+                        const recordDiv = document.createElement('div');
+                        recordDiv.className = 'member-item';
+                        recordDiv.innerHTML = `
+                            <div class="member-info">
+                                <h4>${member.name}</h4>
+                                <p>Kelas: ${member.class}</p>
+                            </div>
+                            <div class="status-badges">
+                                ${record.present ? '<span class="badge badge-present">Hadir</span>' : ''}
+                                ${record.paid ? '<span class="badge badge-paid">Bayar Kas</span>' : ''}
+                            </div>
+                        `;
+                        container.appendChild(recordDiv);
+                    }
+                });
+            });
+        }
+
+        function renderCalendar() {
+            const container = document.getElementById('calendar');
+            const monthSpan = document.getElementById('currentMonth');
+            
+            container.innerHTML = '';
+            
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            monthSpan.textContent = currentCalendarDate.toLocaleDateString('id-ID', {
+                month: 'long',
+                year: 'numeric'
+            });
+            
+            // Calendar headers
+            const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+            days.forEach(day => {
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'calendar-header';
+                headerDiv.textContent = day;
+                container.appendChild(headerDiv);
+            });
+            
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            // Empty cells for days before month starts
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.className = 'calendar-day';
+                container.appendChild(emptyDiv);
+            }
+            
+            // Days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.className = 'calendar-day';
+                
+                const currentDate = new Date(year, month, day);
+                const dateString = currentDate.toDateString();
+                
+                // Check if it's Tuesday (day 2)
+                if (currentDate.getDay() === 2) {
+                    dayDiv.classList.add('tuesday');
+                }
+                
+                // Check if there's attendance record for this date
+                const hasAttendance = attendanceHistory.some(record => record.date === dateString);
+                if (hasAttendance) {
+                    dayDiv.classList.add('has-attendance');
+                }
+                
+                dayDiv.innerHTML = `
+                    <strong>${day}</strong>
+                    ${currentDate.getDay() === 2 ? '<small>Kas</small>' : ''}
+                `;
+                
+                container.appendChild(dayDiv);
+            }
+        }
+
+        function changeMonth(direction) {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
+            renderCalendar();
+        }
+
+        function clearHistory() {
+            if (confirm('Yakin ingin menghapus semua riwayat absen dan pembayaran? Tindakan ini tidak dapat dibatalkan!')) {
+                attendanceHistory = [];
+                saveData();
+                updateStats();
+                renderHistory();
+                renderAbsenList();
+                renderCalendar();
+                alert('Semua riwayat berhasil dihapus!');
+            }
+        }
+
+        function updateStats() {
+            const today = new Date().toDateString();
+            const todayRecords = attendanceHistory.filter(record => record.date === today);
+            
+            const totalMembers = members.length;
+            const todayPresent = todayRecords.filter(record => record.present).length;
+            const todayPaid = todayRecords.filter(record => record.paid).length;
+            const totalIncome = attendanceHistory.filter(record => record.paid).length * weeklyFee;
+            
+            document.getElementById('totalMembers').textContent = totalMembers;
+            document.getElementById('todayPresent').textContent = todayPresent;
+            document.getElementById('todayPaid').textContent = todayPaid;
+            document.getElementById('totalIncome').textContent = 
+                new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalIncome);
+        }
+
+        function showMessage(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+            setTimeout(() => {
+                element.style.display = 'none';
+            }, 3000);
+        }
+
+        function saveData() {
+            const data = {
+                members: members,
+                attendanceHistory: attendanceHistory
+            };
+            // Note: Using in-memory storage for Claude.ai compatibility
+            window.appData = data;
+        }
+
+        function loadData() {
+            // Load from in-memory storage or initialize with sample data
+            if (window.appData) {
+                members = window.appData.members || [];
+                attendanceHistory = window.appData.attendanceHistory || [];
+            } else {
+                // Initialize with sample data
+                members = [
+                    {
+                        id: 1,
+                        name: 'Piter',
+                        class: '9B',
+                        phone: '085710657639',
+                        joinDate: new Date().toISOString()
+                    },
+                    {
+                        id: 2,
+                        name: 'Andi Pratama',
+                        class: '9A',
+                        phone: '081234567890',
+                        joinDate: new Date().toISOString()
+                    },
+                    {
+                        id: 3,
+                        name: 'Sari Dewi',
+                        class: '9C',
+                        phone: '087654321098',
+                        joinDate: new Date().toISOString()
+                    }
+                ];
+                
+                attendanceHistory = [];
+                saveData();
+            }
+        }
+
+        // Filter history when dropdown changes
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                const historyFilter = document.getElementById('historyFilter');
+                if (historyFilter) {
+                    historyFilter.addEventListener('change', renderHistory);
+                }
+            }, 100);
+        });
+
+        // Add some sample attendance data for demonstration
+        function addSampleData() {
+            const today = new Date();
+            const lastTuesday = new Date(today);
+            lastTuesday.setDate(today.getDate() - ((today.getDay() + 5) % 7));
+            
+            // Add sample attendance for last Tuesday
+            members.forEach((member, index) => {
+                if (index < 2) { // First 2 members attended and paid
+                    attendanceHistory.push({
+                        memberId: member.id,
+                        date: lastTuesday.toDateString(),
+                        present: true,
+                        paid: true,
+                        timestamp: new Date(lastTuesday).toISOString()
+                    });
+                }
+            });
+            
+            saveData();
+        }
+
+        // Initialize sample data on first load
+        setTimeout(() => {
+            if (attendanceHistory.length === 0) {
+                addSampleData();
+                updateStats();
+            }
+        }, 500);
+    </script>
+</body>
+</html>
