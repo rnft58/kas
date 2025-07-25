@@ -555,6 +555,7 @@
 
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            // Load data first before anything else
             loadData();
             updateCurrentDate();
             updateStats();
@@ -566,6 +567,55 @@
             document.getElementById('passwordInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     login();
+                }
+            });
+            
+            // Ensure data persistence across page refreshes
+            window.addEventListener('beforeunload', function(e) {
+                saveData();
+                // Force save with slight delay
+                setTimeout(saveData, 10);
+            });
+            
+            // Page visibility change handler
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    // Page became visible, reload data
+                    loadData();
+                    updateStats();
+                    renderMembers();
+                    renderAbsenList();
+                    renderCalendar();
+                } else {
+                    // Page became hidden, save data
+                    saveData();
+                }
+            });
+            
+            // Auto-save every 10 seconds as backup
+            setInterval(function() {
+                saveData();
+                console.log('Auto-saved at:', new Date().toLocaleTimeString());
+            }, 10000);
+            
+            // Save on any user interaction
+            document.addEventListener('click', function() {
+                setTimeout(saveData, 100);
+            });
+            
+            // Hash change handler to maintain state
+            window.addEventListener('hashchange', function() {
+                loadData();
+                updateStats();
+            });
+            
+            // Storage event listener for cross-tab synchronization
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'badmintonAppData') {
+                    loadData();
+                    updateStats();
+                    renderMembers();
+                    renderAbsenList();
                 }
             });
         });
@@ -684,7 +734,7 @@
                 });
             }
             
-            saveData();
+            saveData(); // Save immediately after toggle
             updateStats();
             renderAbsenList();
             showMessage('absenMessage', 'Status kehadiran berhasil diupdate!');
@@ -709,7 +759,7 @@
                 record.paid = !record.paid;
             }
             
-            saveData();
+            saveData(); // Save immediately after toggle
             updateStats();
             renderAbsenList();
             showMessage('absenMessage', 'Status pembayaran berhasil diupdate!');
@@ -908,7 +958,7 @@
         function clearHistory() {
             if (confirm('Yakin ingin menghapus semua riwayat absen dan pembayaran? Tindakan ini tidak dapat dibatalkan!')) {
                 attendanceHistory = [];
-                saveData();
+                saveData(); // Save immediately after clearing
                 updateStats();
                 renderHistory();
                 renderAbsenList();
@@ -946,54 +996,116 @@
             const data = {
                 members: members,
                 attendanceHistory: attendanceHistory,
-                initialized: true
+                initialized: true,
+                lastSaved: new Date().toISOString()
             };
             
-            // Use a more persistent storage approach
+            // Multiple storage strategies for maximum persistence
             try {
-                // Create a hidden element to store data persistently in the page
-                let dataStorage = document.getElementById('persistentData');
-                if (!dataStorage) {
-                    dataStorage = document.createElement('script');
-                    dataStorage.id = 'persistentData';
-                    dataStorage.type = 'application/json';
-                    dataStorage.style.display = 'none';
-                    document.head.appendChild(dataStorage);
+                // Strategy 1: Hidden form input (most persistent)
+                let hiddenForm = document.getElementById('persistentForm');
+                if (!hiddenForm) {
+                    hiddenForm = document.createElement('form');
+                    hiddenForm.id = 'persistentForm';
+                    hiddenForm.style.display = 'none';
+                    document.body.appendChild(hiddenForm);
+                    
+                    const hiddenInput = document.createElement('textarea');
+                    hiddenInput.id = 'persistentInput';
+                    hiddenInput.name = 'appData';
+                    hiddenInput.style.display = 'none';
+                    hiddenForm.appendChild(hiddenInput);
                 }
-                dataStorage.textContent = JSON.stringify(data);
+                document.getElementById('persistentInput').value = JSON.stringify(data);
+                
+                // Strategy 2: Meta tag storage
+                let metaStorage = document.querySelector('meta[name="app-data"]');
+                if (!metaStorage) {
+                    metaStorage = document.createElement('meta');
+                    metaStorage.name = 'app-data';
+                    document.head.appendChild(metaStorage);
+                }
+                metaStorage.content = btoa(JSON.stringify(data)); // Base64 encode
+                
+                // Strategy 3: Script tag storage
+                let scriptStorage = document.getElementById('dataScript');
+                if (!scriptStorage) {
+                    scriptStorage = document.createElement('script');
+                    scriptStorage.id = 'dataScript';
+                    scriptStorage.type = 'application/json';
+                    scriptStorage.style.display = 'none';
+                    document.head.appendChild(scriptStorage);
+                }
+                scriptStorage.textContent = JSON.stringify(data);
+                
+                // Strategy 4: Global window variable
+                window.persistentAppData = data;
+                
+                // Strategy 5: Document title encoding (as backup)
+                const originalTitle = 'Absen Uang Kas - Eskul Badminton';
+                document.title = originalTitle + '<!-- ' + btoa(JSON.stringify({m: members.length, h: attendanceHistory.length})) + ' -->';
+                
             } catch (e) {
-                console.log('Fallback to window storage');
+                console.error('Error saving data:', e);
+                // Fallback to simple window storage
+                window.fallbackAppData = data;
             }
-            
-            // Also keep in window as backup
-            window.appData = data;
         }
 
         function loadData() {
             let loadedData = null;
             
-            // Try to load from persistent storage first
+            // Try multiple loading strategies
             try {
-                const dataStorage = document.getElementById('persistentData');
-                if (dataStorage && dataStorage.textContent) {
-                    loadedData = JSON.parse(dataStorage.textContent);
+                // Strategy 1: Hidden form input
+                const hiddenInput = document.getElementById('persistentInput');
+                if (hiddenInput && hiddenInput.value) {
+                    loadedData = JSON.parse(hiddenInput.value);
                 }
+                
+                // Strategy 2: Meta tag storage
+                if (!loadedData) {
+                    const metaStorage = document.querySelector('meta[name="app-data"]');
+                    if (metaStorage && metaStorage.content) {
+                        loadedData = JSON.parse(atob(metaStorage.content));
+                    }
+                }
+                
+                // Strategy 3: Script tag storage
+                if (!loadedData) {
+                    const scriptStorage = document.getElementById('dataScript');
+                    if (scriptStorage && scriptStorage.textContent) {
+                        loadedData = JSON.parse(scriptStorage.textContent);
+                    }
+                }
+                
+                // Strategy 4: Global window variable
+                if (!loadedData && window.persistentAppData) {
+                    loadedData = window.persistentAppData;
+                }
+                
+                // Strategy 5: Fallback window storage
+                if (!loadedData && window.fallbackAppData) {
+                    loadedData = window.fallbackAppData;
+                }
+                
             } catch (e) {
-                console.log('Could not load from persistent storage, trying window storage');
-            }
-            
-            // Fallback to window storage
-            if (!loadedData && window.appData) {
-                loadedData = window.appData;
+                console.error('Error loading data:', e);
             }
             
             if (loadedData && loadedData.initialized) {
                 members = loadedData.members || [];
                 attendanceHistory = loadedData.attendanceHistory || [];
+                console.log('Data loaded successfully:', {
+                    members: members.length,
+                    history: attendanceHistory.length,
+                    lastSaved: loadedData.lastSaved
+                });
             } else {
                 // Initialize with empty data - no sample members
                 members = [];
                 attendanceHistory = [];
+                console.log('Starting with empty data');
                 saveData();
             }
         }
